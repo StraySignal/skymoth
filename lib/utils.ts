@@ -78,7 +78,7 @@ export function splitTextBluesky(
 	spoiler: string,
 	postLink: string,
 	numbering: boolean,
-	numberingThreshold = 1, // default: always number if 'numbering' is true
+	numberingThreshold = 3, // default: always number if 'numbering' is true
 ): string[] {
 	const MAX_LENGTH = 300;
 	const numberingScale = Math.ceil(text.length / 3000);
