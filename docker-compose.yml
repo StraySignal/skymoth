@@ -1,0 +1,49 @@
+services:
+  skymoth:
+    depends_on:
+      db:
+        condition: service_healthy
+    build: .
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=db
+    ports:
+      - "3000:3000"
+    links:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 1m
+      timeout: 5s
+      start_period: 2m
+      start_interval: 5s
+      retries: 60
+  skymoth-scheduler:
+    depends_on:
+      db:
+        condition: service_healthy
+      skymoth:
+        condition: service_healthy
+    build: .
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=db
+    links:
+      - db
+    command:
+      - /bin/sh
+      - -c
+      - npm run start:scheduler
+  db:
+    image: postgres
+    restart: unless-stopped
+    env_file: .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+    volumes:
+      - /var/lib/skymoth/pgdata:/var/lib/postgresql/data
