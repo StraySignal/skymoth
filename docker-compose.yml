@@ -8,10 +8,13 @@ services:
     env_file: .env
     environment:
       - POSTGRES_HOST=db
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
     ports:
       - "3000:3000"
     links:
       - db
+    volumes:
+      - /opt/skymoth/jwt_secret.txt:/run/secrets/jwt_secret:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 1m
@@ -19,6 +22,7 @@ services:
       start_period: 2m
       start_interval: 5s
       retries: 60
+
   skymoth-scheduler:
     depends_on:
       db:
@@ -30,12 +34,16 @@ services:
     env_file: .env
     environment:
       - POSTGRES_HOST=db
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
     links:
       - db
     command:
       - /bin/sh
       - -c
       - npm run start:scheduler
+    volumes:
+      - /opt/skymoth/jwt_secret.txt:/run/secrets/jwt_secret:ro
+
   db:
     image: postgres
     restart: unless-stopped

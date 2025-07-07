@@ -36,6 +36,13 @@ migrationHelper()
 	.then(() => {
 		const { ADDRESS = "localhost", PORT = "3000" } = process.env;
 
+		// Load JWT secret from env or mounted secret file
+		const jwtSecret =
+			process.env.JWT_SECRET ||
+			(existsSync("/run/secrets/jwt_secret")
+				? readFileSync("/run/secrets/jwt_secret", "utf-8").trim()
+				: "this_shoudl_not_be_used_in_production");
+
 		if (process.env.SENTRY_DSN) {
 			Sentry.init({
 				dsn: process.env.SENTRY_DSN,
@@ -77,7 +84,7 @@ migrationHelper()
 		});
 
 		app.register(fastifyJwt, {
-			secret: process.env.JWT_SECRET ?? "this_shoudl_not_be_used_in_production",
+			secret: jwtSecret,
 			cookie: {
 				cookieName: "token",
 				signed: false,

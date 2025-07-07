@@ -10,6 +10,8 @@ devenv.local.nix
 # pre-commit
 .pre-commit-config.yaml
 
+.env
+
 public/styles/style.css
 
 dist
